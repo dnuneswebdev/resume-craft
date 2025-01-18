@@ -11,6 +11,9 @@ const fontTitle = Nunito({subsets: ["latin"], variable: "--font-title"});
 
 export const metadata: Metadata = {
   title: "Resume Craft",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 // caso queira setar o idioma padrão do browser para o portugues

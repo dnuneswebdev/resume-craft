@@ -5,14 +5,8 @@ import {eq} from "drizzle-orm";
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!; // Get the Stripe webhook secret from the environment variables and make sure it's not null
 
-console.log("CHEGOU AQUI 1111!!!!!!!");
-
 export const POST = async (request: Request) => {
-  console.log("CHEGOU AQUI 222!!!!!!!");
-
   try {
-    console.log("CHEGOU AQUI 333!!!!!!!");
-
     const sig = request.headers.get("Stripe-Signature"); // Get the Stripe signature from the request headers
 
     if (!sig) {

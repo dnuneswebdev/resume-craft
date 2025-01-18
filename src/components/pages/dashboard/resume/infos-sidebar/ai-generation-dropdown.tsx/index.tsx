@@ -22,12 +22,27 @@ import {ApiService} from "@/services/api";
 import {Skeleton} from "@/components/ui/skeleton";
 import {BuyCreditsDialog} from "./buy-credits-dialog";
 import {queryKeys} from "@/contants/query-keys";
+import {toast} from "sonner";
 
 const AIGenerationDropdown: React.FC = () => {
   const [generationMode, setGenerationMode] = useState<AIGenerationMode | null>(
     null
   );
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
+
+  const onAction = (mode: AIGenerationMode) => {
+    if (!credits) {
+      toast.error("You don't have enough credits to generate content.", {
+        action: {
+          label: "Buy credits",
+          onClick: () => setShowCreditsDialog(true),
+        },
+      });
+      return;
+    }
+
+    setGenerationMode(mode);
+  };
 
   const actions = [
     {
@@ -38,20 +53,17 @@ const AIGenerationDropdown: React.FC = () => {
     {
       label: "Generating content for job vacancies",
       icon: BriefcaseBusiness,
-      // onClick: () => onAction("JOB_TITLE"),
-      onClick: () => setGenerationMode("JOB_TITLE"),
+      onClick: () => onAction("JOB_TITLE"),
     },
     {
       label: "Improve and correct existing content",
       icon: PencilLine,
-      // onClick: () => onAction("FIX_CONTENT"),
-      onClick: () => setGenerationMode("FIX_CONTENT"),
+      onClick: () => onAction("FIX_CONTENT"),
     },
     {
       label: "Translate existing content",
       icon: Languages,
-      // onClick: () => onAction("TRANSLATE_CONTENT"),
-      onClick: () => setGenerationMode("TRANSLATE_CONTENT"),
+      onClick: () => onAction("TRANSLATE_CONTENT"),
     },
   ];
 

@@ -1,8 +1,9 @@
 import {EditorField} from "@/components/shared/editor-field";
 import {InputField} from "@/components/shared/input";
 import {Button} from "@/components/ui/button";
+import {queryKeys} from "@/contants/query-keys";
 import {ApiService} from "@/services/api";
-import {useMutation} from "@tanstack/react-query";
+import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {useForm, useFormContext} from "react-hook-form";
 import {toast} from "sonner";
 
@@ -27,24 +28,29 @@ type GenerateFromJobTitleProps = {
 export const GenerateFromJobTitle = ({
   onCloseModal,
 }: GenerateFromJobTitleProps) => {
-  const {control, formState, handleSubmit} = useForm<FormData>();
+  const {control, handleSubmit} = useForm<FormData>();
   const {setValue} = useFormContext<ResumeData>();
+  const queryClient = useQueryClient();
 
-  const {mutateAsync: handleGenerate} = useMutation({
+  const {mutate: handleGenerate, isPending} = useMutation({
     mutationFn: ApiService.generateContentForJob,
+    onSuccess: (data) => {
+      const genereatedContent = JSON.parse(data?.data) as GenerationData;
+
+      setValue("content.infos.headline", genereatedContent.headline);
+      setValue("content.summary", genereatedContent.summary);
+      setValue("content.skills", genereatedContent.skills);
+
+      toast.success("Content generated successfully");
+
+      queryClient.invalidateQueries({queryKey: queryKeys.credits});
+
+      onCloseModal();
+    },
   });
 
   const onSubmit = async (formData: FormData) => {
-    const data = await handleGenerate(formData);
-    const genereatedContent = JSON.parse(data?.data) as GenerationData;
-
-    setValue("content.infos.headline", genereatedContent.headline);
-    setValue("content.summary", genereatedContent.summary);
-    setValue("content.skills", genereatedContent.skills);
-
-    toast.success("Content generated successfully");
-
-    onCloseModal();
+    await handleGenerate(formData);
   };
 
   return (
@@ -63,11 +69,7 @@ export const GenerateFromJobTitle = ({
         className="min-h-[200px] max-h-[300px]"
         required
       />
-      <Button
-        className="w-max ml-auto"
-        type="submit"
-        disabled={formState.isSubmitting}
-      >
+      <Button className="w-max ml-auto" type="submit" disabled={isPending}>
         Generate
       </Button>
     </form>

@@ -80,3 +80,21 @@ export const duplicateResume = async (id: string, title: string) => {
 
   return newResume[0];
 };
+
+export const decrementUserCredits = async (amount: number) => {
+  const userId = await getUserIdOrThrow();
+
+  const user = await db.query.users.findFirst({
+    where: eq(users.id, userId),
+  });
+
+  if (!user) throw new Error("User not found.");
+
+  const updateUser = await db
+    .update(users)
+    .set({credits: user.credits - amount})
+    .where(eq(users.id, userId))
+    .returning();
+
+  return updateUser[0];
+};
